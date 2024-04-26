@@ -3,39 +3,52 @@ import time
 
 app = Flask(__name__)
 
-previous_typing_speed = None
-previous_paragraph = None
+typing_speed_history = []
+is_warming_up = True
+warm_up_duration = 10  # Warm-up duration in seconds
+warm_up_start_time = None
 
-# Define the predict endpoint
+# Define the analyze endpoint
 @app.route('/analyze', methods=['POST'])
 def analyze():
-    global previous_typing_speed, previous_paragraph
+    global is_warming_up, warm_up_start_time
 
-    # Get paragraph from request data
     paragraph = request.json['paragraph']
+
+    # If still warming up, check if warm-up period has ended
+    if is_warming_up:
+        if time.time() - warm_up_start_time >= warm_up_duration:
+            is_warming_up = False
+            return jsonify({
+                'speed_analysis': 'Warm-up period ended. Starting dynamic analysis...'
+            })
+        else:
+            return jsonify({
+                'speed_analysis': 'Warming up...'
+            })
 
     # Analyze typing speed
     typing_speed = calculate_typing_speed(paragraph)
 
-    # Analyze paragraph content
-    if previous_paragraph is not None and previous_paragraph != paragraph:
-        paragraph_analysis = 'Abnormal: Paragraph content has changed.'
-    else:
-        paragraph_analysis = 'Normal: Paragraph content is unchanged.'
+    # Add typing speed to history
+    typing_speed_history.append(typing_speed)
 
-    # Compare typing speed with previous typing speed
-    if previous_typing_speed is not None and typing_speed != previous_typing_speed:
-        speed_analysis = 'Abnormal: Typing speed has changed.'
-    else:
-        speed_analysis = 'Normal: Typing speed is unchanged.'
+    # Check if there is enough typing speed history to analyze
+    if len(typing_speed_history) >= 5:
+        # Calculate average typing speed
+        avg_typing_speed = sum(typing_speed_history) / len(typing_speed_history)
 
-    # Update previous typing speed and paragraph
-    previous_typing_speed = typing_speed
-    previous_paragraph = paragraph
+        # Check if typing speed has changed significantly from average
+        # For demonstration, let's consider a threshold of 30% change
+        if typing_speed < 0.7 * avg_typing_speed or typing_speed > 1.3 * avg_typing_speed:
+            speed_analysis = 'Abnormal: Typing speed has changed significantly.'
+        else:
+            speed_analysis = 'Normal: Typing speed is unchanged.'
+    else:
+        speed_analysis = 'Normal: Typing speed is being studied...'
 
     return jsonify({
-        'speed_analysis': speed_analysis,
-        'paragraph_analysis': paragraph_analysis
+        'speed_analysis': speed_analysis
     })
 
 def calculate_typing_speed(paragraph):
@@ -47,6 +60,9 @@ def calculate_typing_speed(paragraph):
 
 @app.route('/')
 def index():
+    global is_warming_up, warm_up_start_time
+    is_warming_up = True  # Start in the waiting mode
+    warm_up_start_time = time.time()
     return render_template('index.html')
 
 if __name__ == '__main__':

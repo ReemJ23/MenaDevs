@@ -8,8 +8,7 @@
 </head>
 <body>
     <h1>Behavioral Biometrics Analysis</h1>
-    <textarea id="paragraphInput" rows="10" cols="50"></textarea><br>
-    <button onclick="analyzeBehavior()">Analyze Behavior</button>
+    <textarea id="paragraphInput" rows="10" cols="50" oninput="analyzeBehavior(this.value)"></textarea><br>
     <div id="analysisResult"></div>
 
     <script src="{{ url_for('static', filename='scripts.js') }}"></script>

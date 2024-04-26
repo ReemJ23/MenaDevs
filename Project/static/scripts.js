@@ -1,6 +1,4 @@
-function analyzeBehavior() {
-    var paragraph = document.getElementById('paragraphInput').value;
-
+function analyzeBehavior(paragraph) {
     fetch('/analyze', {
         method: 'POST',
         headers: {
@@ -10,9 +8,7 @@ function analyzeBehavior() {
     })
     .then(response => response.json())
     .then(data => {
-        var analysisResult = 'Typing Speed: ' + data.speed_analysis + '<br>' +
-                             'Paragraph Content: ' + data.paragraph_analysis;
-        document.getElementById('analysisResult').innerHTML = analysisResult;
+        document.getElementById('analysisResult').innerText = data.speed_analysis;
     })
     .catch(error => console.error('Error:', error));
 }
