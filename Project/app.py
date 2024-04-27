@@ -4,48 +4,44 @@ import time
 app = Flask(__name__)
 
 typing_speed_history = []
-is_warming_up = True
-warm_up_duration = 10  # Warm-up duration in seconds
-warm_up_start_time = None
+change_percentage_threshold = 0.2  # Threshold for detecting significant change in typing speed
+last_typing_time = None
 
 # Define the analyze endpoint
 @app.route('/analyze', methods=['POST'])
 def analyze():
-    global is_warming_up, warm_up_start_time
+    global last_typing_time
 
     paragraph = request.json['paragraph']
+    current_time = time.time()
 
-    # If still warming up, check if warm-up period has ended
-    if is_warming_up:
-        if time.time() - warm_up_start_time >= warm_up_duration:
-            is_warming_up = False
-            return jsonify({
-                'speed_analysis': 'Warm-up period ended. Starting dynamic analysis...'
-            })
-        else:
-            return jsonify({
-                'speed_analysis': 'Warming up...'
-            })
-
-    # Analyze typing speed
+    # Calculate typing speed
     typing_speed = calculate_typing_speed(paragraph)
 
     # Add typing speed to history
     typing_speed_history.append(typing_speed)
 
+    # Keep only the most recent typing speeds based on the window size
+    if len(typing_speed_history) > 10:
+        typing_speed_history.pop(0)
+
     # Check if there is enough typing speed history to analyze
-    if len(typing_speed_history) >= 5:
+    if len(typing_speed_history) >= 10:
         # Calculate average typing speed
         avg_typing_speed = sum(typing_speed_history) / len(typing_speed_history)
 
+        # Calculate the change percentage of the current typing speed
+        change_percentage = abs(typing_speed - avg_typing_speed) / avg_typing_speed
+
         # Check if typing speed has changed significantly from average
-        # For demonstration, let's consider a threshold of 30% change
-        if typing_speed < 0.7 * avg_typing_speed or typing_speed > 1.3 * avg_typing_speed:
+        if change_percentage > change_percentage_threshold:
             speed_analysis = 'Abnormal: Typing speed has changed significantly.'
         else:
             speed_analysis = 'Normal: Typing speed is unchanged.'
     else:
         speed_analysis = 'Normal: Typing speed is being studied...'
+
+    last_typing_time = current_time
 
     return jsonify({
         'speed_analysis': speed_analysis
@@ -58,18 +54,12 @@ def calculate_typing_speed(paragraph):
     typing_speed = len(words) / typing_time  # Words per second
     return typing_speed
 
-# Serve index.html by default for the root route '/'
 @app.route('/')
 def index():
-    global is_warming_up, warm_up_start_time
-    is_warming_up = True  # Start in the waiting mode
-    warm_up_start_time = time.time()
+    global last_typing_time
+    typing_speed_history.clear()  # Reset typing speed history
+    last_typing_time = time.time()  # Update last typing time
     return render_template('index.html')
-
-# Serve model.html when navigating to '/model'
-@app.route('/model')
-def model():
-    return render_template('model.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
