@@ -58,12 +58,18 @@ def calculate_typing_speed(paragraph):
     typing_speed = len(words) / typing_time  # Words per second
     return typing_speed
 
+# Serve index.html by default for the root route '/'
 @app.route('/')
 def index():
     global is_warming_up, warm_up_start_time
     is_warming_up = True  # Start in the waiting mode
     warm_up_start_time = time.time()
     return render_template('index.html')
+
+# Serve model.html when navigating to '/model'
+@app.route('/model')
+def model():
+    return render_template('model.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
