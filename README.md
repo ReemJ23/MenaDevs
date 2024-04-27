@@ -15,7 +15,6 @@ Guardian Eye's software enhances bank app security through behavioral biometrics
 
 **Market Need**: The banking and financial services market is experiencing increasing levels of sophistication in fraudulent activities, driven by advancements in technology and digital channels. Traditional fraud detection methods are no longer sufficient to combat these evolving threats, necessitating the adoption of advanced fraud detection solutions like GuardianEye. With the rise of online banking, mobile payments, and digital transactions, there is a growing demand for innovative fraud detection solutions that can adapt to changing fraud patterns and provide proactive protection against financial fraud.
 
-
 ---------------------------------------------------------------
 
 # Market Value
@@ -39,7 +38,9 @@ Market for Behavioral Biometrics Fraud Detection System:
 
   $1.45 Billion in 2023. (Polaris Market Research)
   Expected to Grow by 25.10%
+
 ---------------------------------------------------------------
+
 # Technology:
 
 **Cloud Computing**: GuardianEye leverages cloud computing infrastructure to provide scalability, flexibility, and reliability. By utilizing cloud-based services, GuardianEye can dynamically allocate resources, handle large volumes of transaction data, and scale its operations according to demand.
