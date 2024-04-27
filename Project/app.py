@@ -4,7 +4,7 @@ import time
 app = Flask(__name__)
 
 typing_speed_history = []
-change_percentage_threshold = 0.2  # Threshold for detecting significant change in typing speed
+change_percentage_threshold = 0.5  # Threshold for detecting significant change in typing speed
 last_typing_time = None
 
 # Define the analyze endpoint
